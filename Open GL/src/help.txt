@@ -1,0 +1,454 @@
+
+================================VERTEXES AND VERTEX ATTRIBUTES EXPLAINED============================================================
+
+VERTEXES AND VERTEX ATTRIBUTES EXPLAINED
+You can store different attributes in a vertex - which is an abstract kind of chest 
+which stores different aspects, such as colour, textures, etc.
+You can put them on a buffer one after the other with glBufferData.
+Like positions first, then colours, then something else.
+
+NOTE:
+For bufferdata, you can bind various variables containing the
+desired info. For the attrib pointer, the first parameter specifies the offset to 
+the position of the desired attribute. In this case:
+
+unsigned int buffer;
+glGenBuffers(1, &buffer);
+glBindBuffer(GL_ARRAY_BUFFER, buffer);
+glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+
+we only specified one attribute, so we put 0 in our thing.
+
+The last parameter tells opengl where in the vertex that the attribute being specified will be stored.
+
+
+==================================DEFINITIONS, INITIALIZATIONS AND DECLARATIONS=======================================================
+
+whenever a variable has a type in front of it, it is a definition
+if it has a typeand a value assigned to it, is still a definition, but also it
+considered to be initialiezed
+when there is nothing in front of it, like var; for example, it is a declaration.
+Declaring functions calls them
+
+==========================================GLOBALS BY DEFAULT================================================================
+
+GLOBALS BY DEFAULT
+all global variables in different files are still checked by the linker.
+For example, if I have int random = 32; in one file, and int random = 54; in another,
+since the compiler looks at one file at a time, unlike the linker, it won't know that there
+are two variables with the same signature.The linker on the other hand, will throw a tantrum,
+and give an error, because it doesn't know which one to use. This revolves around the rule
+that a variable cannot be defined more than once.If you define it more than once, the linker
+will know, and give an error.Note the compiler remains oblivious.
+So what would happen if you define it in one file, and declare it in another ?
+Like int random; in one, and random; in another.In this case, the linker,
+since it can peer into different files at once, will see that you are just declaring
+that random exists, which isn't harmful. The compiler on the other hand will throw a tantrum this 
+time, because What type is random ? It can only connect the dots between definitions and
+declarations within one file, while the linker can handle multiple files.
+To make both agree, you would have to define the variable in one file, and use
+the amazing word extern to tell the compiler not to worry, that the variable
+is snug and safe in another file.Like this :
+
+============================
+	
+	main.cpp
+
+	extern random;
+
+
+other.cpp
+
+int random;
+
+============================
+
+Now everyone is happy. For the linker, it's becuase the variable wasn't declared more than once, and for 
+the compiler, because extern is an instruction telling the linker to fetch the variable
+
+==================================OPERATOR OVERLOADING==============================================================
+
+class example{
+	
+	int num;
+
+	example(int num)
+	:num(num){}
+
+	 operator+(example anoting) {
+		example ting;
+		example.num = num + anoting.numl
+
+		return ting;
+	}
+
+};
+
+===========================
+
+In the above example of operator overloading, you first need to understand that this operator+ function
+, in its purest form would look like :
+  
+  ===========================
+
+  example obj1;
+  example obj2;
+
+  obj1.operator+(obj2);
+
+  ======================
+
+  While the normal version would look like:
+
+  ========================
+
+  obj1 + obj2;
+  
+  =====================
+
+  Taking this into account, it all begins to make sense. The parameter of the operator 
+  function takes in an object, which corresponds to the object behind the + sign.The object 
+  which calls the function is the one on the left side of the + sign.
+
+  In the body of the function, we define a example object, which will later be used
+  as our return value.
+
+  Then, we intialize it, giving it the value of the current objects num value...(NOTE:
+
+  A CLASS IS JUST LKE A FRAMEWORK, LIKE A SCAFFOLDING THINGIE. NUM MEANS THAT THE CURRENT OBJECT USING
+  THAT FUNCTION'S NUM. IT'S IDENTICAL TO *THIS.NUM. NUM CORRESPONDS TO EVERY OBJECT WHICH 
+  USES THAT FUNCTION'S NUM ) 
+
+  plus the parameter's num (the object on the right side of the +). We then return it.
+
+  Easy.
+
+============================================= GLSL - OPENGL SHADER LANGUAGE ============================================
+
+#shader vertex 
+#version 330 core
+    
+layout(location = 0) in vec4 position;  
+void main()
+{
+gl_Position = position; 
+}; 
+
+
+#shader fragment
+#version 330 core
+
+layout(location = 0) out vec4 colour;
+
+uniform vec4 u_colour; // anything that 
+                      //begins with a u_ is a
+                      //uniform variable
+
+void main()
+{
+colour = u_colour; // so uniforms unlike colours in a vertex
+// can be provided immediately before the arrays/elements are drawn. It has to be after the shaders are bound.
+// so that opengl knows which shader to use.
+/// every pixel is set to u_colour
+
+
+// as you can see, opengl is indeed a state machine.
+// you don't need to specifically tell opengl where 
+// this uniform is, just specify it as an input variable, 
+// and it will use the current one that is bound(selected)
+
+};
+
+============================= GlVertexAttribPointer ================================
+
+The first paramter is about where in the vertex the attribute will be stored, the second talks about how many individual pieces of information
+are contained in those pieces of bytes. 
+
+The second to last parameter is about how many bytes make up a vertex. Like here, since we only have positions :
+
+========================================
+
+        float positions[8] = {
+            -0.5, -0.5,  // WE COULD SAY THIS LINE REPRESENTS ONE VERTEX
+             0.5,  -0.5,
+             0.5, 0.5,
+             -0.5,  0.5,
+
+        };
+
+========================================
+
+So in the attrib pointer func. , we would say the stride is sizeof(float) * 2, as each line is a vertex. In here however :
+
+=============================================
+
+        float positions[8] = {
+            //positions       //colours 
+            -0.5, -0.5,      -0.5, -0.5,   // WE COULD SAY THIS LINE STILL REPRESENTS ONE VERTEX
+             0.5,  -0.5,      0.5,  -0.5,  
+             0.5, 0.5,       0.5,  -0.5,  
+             -0.5,  0.5,     0.5,  -0.5
+
+        };
+
+==========================================
+
+So we'd call glVertexAttribPointer twice:
+
+========================================
+
+glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (const void*)0);
+glEnableWhateverItsCalled(0);
+
+//then
+
+glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (const void*)sizeof(float) * 2);
+
+=========================================
+
+Use this video, if you're still confused:
+ 
+ https://youtu.be/8fy8uRv9PdM?t=596
+
+ And this png :
+
+https://cdn.discordapp.com/attachments/471757050498514994/892774568123588618/vertex_attribute_pointer_interleaved.png
+
+The last parameter is a pointer to the first value of the attribute in the vertex 
+
+
+
+========================TEMPLATES=============================
+
+You can pass various variable types to a function using templates:
+
+===========
+
+template<class name>
+void printshit(name var){
+
+std::cout << var << std::endl;
+
+}
+
+============
+
+The class/typename keyword tells c++ that you are talking about types. The way that this function now works
+is that whenever you pass a string or int to it :
+
+================
+
+printshit("name");
+printshit(4);
+
+===============
+
+It will automatically create overloads for you, enabling you to be able to call the function despite the 
+different types passed to it.
+You can be explicit when calling the function however, and tell it what type you want to pass to 
+it. 
+ 
+ ===============
+
+ printshit<int>(3);
+
+
+===================
+
+Now, the defined function parameters are replaced with "int", and the function will only allow you 
+to pass in an int.
+
+If you don't use a templated function at all, it never gets compiled.
+
+You can also template a class. 
+
+Basically, unless called, a templated thingie doesn't really exist in the code, but when you call it 
+and give it certain parameters, it gets pasted into code with those new things. Like this:
+
+======================
+
+template<int n>
+class Array{
+
+private:
+
+int m_array[n];
+
+public:
+
+int getSize()const{return n;}
+
+};
+
+int main(){
+
+
+Array<3> object;
+
+return 0;
+}
+
+
+==============
+
+When you make that object, the compiler does this : 
+
+==================
+
+class Array{
+
+private:
+
+int m_array[3];
+
+public:
+
+int getSize()const{return 3;}
+
+};
+
+============
+
+You could even do:
+
+====================
+
+template<typename type, int n>
+class Array{
+
+private:
+
+type m_array[n];
+
+public:
+
+int getSize()const{return n;}
+
+};
+
+
+int main(){
+
+
+Array<int, 4> object;
+
+return 0; 
+
+}
+
+============
+
+Pretty self-explanatory.
+
+===========================CONST====================================
+
+Constexpr functions are evaluated at compile time. That is the only difference between them 
+and normal functions.
+
+As a member however, they need to be immediately defined.
+
+===================STD::VECTORS=======================
+
+When using vectors as parameters, make sure that you pass them as const references, to 
+reduce the amount of copying your compiler has to do.
+
+==================COPY CONSTRUCTORS========================
+
+C++ by default provides copy constructors, that take in as parameters, an object of type
+(this), and set all the variables in that parameter equal to those in this.
+
+e.g 
+
+class string{
+
+const char* m_buffer;
+unsigned int size;
+
+string(const string& parameter)
+:m_buffer(parameter.m_buffer), size(parameter.size)
+{}
+
+
+=================
+
+or 
+
+=================
+
+string(const string& parameter){
+
+memcpy(this, &other, sizeof(string))
+
+}
+
+};
+
+
+======================NOTE=============
+
+Const reference parameters mean that the function does not intend to 
+change the parameter values at all. The referencing is done to 
+reduce the amount of copying done.
+
+The same applies to member functions - they can be made const, so that
+they cannot affect the object, only mutable members can be accessed 
+my the function.
+Const objects are used along with these functions.
+
+==================== NOTE ================
+
+A file cannot include another file that also includes it. This is known as a cyclical 
+include, and causes errors.
+
+================ THE FUNCTION TYPE =================
+
+A function type, the same way we have int, looks like:
+
+=====================
+
+type_name(*variable_name)();
+
+====================
+
+so we assign any function, following this pattern. But for some reason
+however, typedefs look like:
+
+====================
+
+typedef type_name(*typdef_name)();
+
+typedef_name variable_name = whatever_function_you_want_but_has_to_be_of_the_same_type_as_the_typedef;
+
+=========================
+
+Here's another example for you to study so you can get the hang of this.
+
+=========================
+
+#include <iostream>
+#include <vector>
+
+void printValues(values)
+{
+
+std::cout << values << std::endl;
+
+}
+
+void ForEach(const std::vector<int>& values, void(*func)(int)){
+
+for (int value : value)
+    func(value)
+
+}
+
+int main()
+{
+
+std::vector<int> values  = { 1, 2, 3, 4, 5, 6};
+ForEach(values, PrintValue);
+
+return 0;
+}
+
+=======================
