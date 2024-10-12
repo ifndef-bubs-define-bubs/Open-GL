@@ -2,7 +2,7 @@
 ================================VERTEXES AND VERTEX ATTRIBUTES EXPLAINED============================================================
 
 VERTEXES AND VERTEX ATTRIBUTES EXPLAINED
-You can store different attributes in a vertex - which is an abstract kind of chest 
+You can store different attributes in a vertex - which is an abstract kind of chest
 which stores different aspects, such as colour, textures, etc.
 You can put them on a buffer one after the other with glBufferData.
 Like positions first, then colours, then something else.
@@ -225,7 +225,7 @@ You can pass various variable types to a function using templates:
 ===========
 
 template<class name>
-void printshit(name var){
+void printStuff(name var){
 
 std::cout << var << std::endl;
 
@@ -238,8 +238,8 @@ is that whenever you pass a string or int to it :
 
 ================
 
-printshit("name");
-printshit(4);
+printStuff("name");
+printStuff(4);
 
 ===============
 
@@ -250,7 +250,7 @@ it.
  
  ===============
 
- printshit<int>(3);
+ printStuff<int>(3);
 
 
 ===================
